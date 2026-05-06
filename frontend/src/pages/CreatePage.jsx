@@ -2,13 +2,15 @@ import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import toast from "react-hot-toast";
-import api from "../lib/axios";
+import { useAuthStore } from "../store/authStore.js";
 
 const CreatePage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const { createNote } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +22,7 @@ const CreatePage = () => {
 
     setLoading(true);
     try {
-      await api.post("/notes", { title, content });
+      await createNote(title, content);
       toast.success("Note created sucessfully");
       navigate("/");
     } catch (error) {
@@ -39,7 +41,7 @@ const CreatePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="w-full min-h-screen bg-base-200">
       <div className="conatiner items-center mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <Link to={"/"} className="btn btn-ghost mb-6">

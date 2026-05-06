@@ -2,7 +2,7 @@ import { ArrowLeftIcon, LoaderIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate, useParams } from "react-router";
-import api from "../lib/axios";
+import { useAuthStore } from "../store/authStore.js";
 
 const NoteDetailPage = () => {
   const [note, setNote] = useState(null);
@@ -12,11 +12,13 @@ const NoteDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const { getNoteByID, updateNote, deleteNote } = useAuthStore();
+
   useEffect(() => {
     const fetchNote = async () => {
-      api;
       try {
-        const res = await api.get(`/notes/${id}`);
+        const res = await getNoteByID(id);
+        console.log(res);
         setNote(res.data);
       } catch (error) {
         console.log("Error in fetching note", error);
@@ -27,13 +29,13 @@ const NoteDetailPage = () => {
     };
 
     fetchNote();
-  }, [id]);
+  }, [getNoteByID, id]);
 
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
 
     try {
-      await api.delete(`/notes/${id}`);
+      await deleteNote(id);
       toast.success("Note deleted");
       navigate("/");
     } catch (error) {
@@ -51,7 +53,8 @@ const NoteDetailPage = () => {
     setSaving(true);
 
     try {
-      await api.put(`/notes/${id}`, note);
+      console.log(note.title);
+      await updateNote(id, note.title, note.content);
       toast.success("Note updated successfully");
       navigate("/");
     } catch (error) {
@@ -71,7 +74,7 @@ const NoteDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="w-full min-h-screen bg-base-200">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-6">
